@@ -51,7 +51,7 @@ const Signup = () => {
 
         try {
             const response = await axios.post(
-                "http://localhost:4000/api/user/register",
+                "https://spotify-backend-lmvw.onrender.com/api/user/register",
                 {
                     name,
                     email,

@@ -14,7 +14,7 @@ import Favorite from "./components/Favorite";
 import { PlayerContext } from "./context/PlayerContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-export const url = "http://localhost:4000";
+export const url = "https://spotify-backend-lmvw.onrender.com";
 
 function App() {
     const { audioRef, songsData, hasStartedPlaying } = useContext(PlayerContext);

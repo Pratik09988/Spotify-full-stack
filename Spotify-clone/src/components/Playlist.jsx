@@ -171,7 +171,7 @@ const Playlist = () => {
 
             const userId = user.id || user._id;
 
-            const response = await axios.post("http://localhost:4000/api/user/playlist/delete", {
+            const response = await axios.post("https://spotify-backend-lmvw.onrender.com/api/user/playlist/delete", {
                 userId,
                 playlistId: id,
             });

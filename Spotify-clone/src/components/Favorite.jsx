@@ -38,7 +38,7 @@ const Favorite = () => {
             const userId = user.id || user._id;
             const songId = song._id.toString();
 
-            const response = await axios.post("http://localhost:4000/api/user/favorite/remove", {
+            const response = await axios.post("https://spotify-backend-lmvw.onrender.com/api/user/favorite/remove", {
                 userId,
                 songId,
             });

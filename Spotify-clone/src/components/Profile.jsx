@@ -40,7 +40,7 @@ const Profile = () => {
         }
         try {
             const res = await axios.put(
-                "http://localhost:4000/api/user/update",
+                "https://spotify-backend-lmvw.onrender.com/api/user/update",
                 {
                     id: user.id,
                     name: editing === "name" ? value : user.name,

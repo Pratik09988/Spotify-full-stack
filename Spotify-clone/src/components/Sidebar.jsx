@@ -125,7 +125,7 @@ const Sidebar = () => {
 
             const userId = user.id || user._id;
 
-            const response = await axios.post("http://localhost:4000/api/user/playlist/create", {
+            const response = await axios.post("https://spotify-backend-lmvw.onrender.com/api/user/playlist/create", {
                 userId,
                 name: playlistName.trim(),
             });
@@ -165,7 +165,7 @@ const Sidebar = () => {
 
     const SidebarContent = () => (
         <>
-            <div className="bg-[#121212] h-[20%] rounded flex flex-col justify-around">
+            <div className="bg-[#121212] h-[20%] min-h-[150px] rounded flex flex-col justify-around">
                 <div onClick={() => handleNavigate("/")} className={`flex items-center gap-3 pl-8 cursor-pointer ${location.pathname === "/" ? "text-green-500" : "text-white"}`}>
                     <FontAwesomeIcon icon={faHouse} className="w-6" />
                     <p className="font-bold">Home</p>
@@ -179,16 +179,18 @@ const Sidebar = () => {
                     <p className="font-bold">My Favorites</p>
                 </div>
             </div>
+
             <div className="bg-[#121212] flex-1 min-h-0 rounded overflow-y-auto">
                 <div className="p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <img className="w-6" src={assets.stack_icon} alt="" />
-                        <p className="font-semibold">Your Library</p>
+                    <div className="flex items-center gap-3 min-w-0">
+                        <img className="w-6 flex-shrink-0" src={assets.stack_icon} alt="" />
+                        <p className="font-semibold truncate">Your Library</p>
                     </div>
-                    <button title="Add to Library" onClick={createPlaylist} className="text-[#a7a7a7] hover:text-green-600 hover:scale-150 transition-transform duration-200 cursor-pointer">
+                    <button title="Add to Library" onClick={createPlaylist} className="text-[#a7a7a7] hover:text-green-600 hover:scale-150 transition-transform duration-200 cursor-pointer flex-shrink-0">
                         <FontAwesomeIcon icon={faPlus} />
                     </button>
                 </div>
+
                 {playlists.length === 0 ? (
                     <div className="p-4 bg-[#242424] m-2 rounded font-semibold flex flex-col items-start justify-center">
                         <h1>Create Your First Playlist</h1>
@@ -220,6 +222,7 @@ const Sidebar = () => {
                     </div>
                 )}
             </div>
+
             <button onClick={handleLogout} title="Logout" className="w-full mt-2 px-4 py-3 rounded-lg bg-[#121212] text-red-500 hover:bg-[#2a1616] hover:text-red-400 transition-all duration-200 flex items-center gap-4 cursor-pointer flex-shrink-0 text-left">
                 <FontAwesomeIcon icon={faRightFromBracket} className="text-lg" />
                 <span className="font-semibold">Logout</span>
@@ -229,27 +232,28 @@ const Sidebar = () => {
 
     return (
         <>
-            <div className="w-[30%] h-full p-2 flex-col gap-2 text-white hidden lg:flex">
+            <div className="w-[30%] h-full p-2 flex-col gap-2 text-white hidden lg:flex flex-shrink-0">
                 <SidebarContent />
             </div>
+
             <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden fixed top-4 left-4 z-[80] w-11 h-11 rounded-full bg-[#121212] text-white flex items-center justify-center shadow-lg hover:bg-[#242424] transition">
                 <FontAwesomeIcon icon={faBars} />
             </button>
 
             {mobileMenuOpen && (
-                <div className="lg:hidden fixed inset-0 z-[90]">
+                <div className="lg:hidden fixed inset-0 z-[90] overflow-hidden">
                     <div onClick={() => setMobileMenuOpen(false)} className="absolute inset-0 bg-black/70" />
                     <div className="relative w-[85%] max-w-[340px] h-full bg-black p-2 flex flex-col gap-2 text-white animate-[slideIn_0.25s_ease-out]">
                         <div className="bg-[#121212] rounded flex items-center justify-between px-5 py-4">
-                            <div className="flex items-center gap-3">
-                                <img className="w-7" src={assets.stack_icon} alt="" />
-                                <p className="font-bold">Music Library</p>
+                            <div className="flex items-center gap-3 min-w-0">
+                                <img className="w-7 flex-shrink-0" src={assets.stack_icon} alt="" />
+                                <p className="font-bold truncate">Music Library</p>
                             </div>
-                            <button onClick={() => setMobileMenuOpen(false)} className="text-gray-400 hover:text-white text-xl">
+                            <button onClick={() => setMobileMenuOpen(false)} className="text-gray-400 hover:text-white text-xl flex-shrink-0">
                                 <FontAwesomeIcon icon={faXmark} />
                             </button>
                         </div>
-                        <div className="flex-1 min-h-0 flex flex-col gap-2">
+                        <div className="flex-1 min-h-0 flex flex-col gap-2 overflow-hidden">
                             <SidebarContent />
                         </div>
                     </div>

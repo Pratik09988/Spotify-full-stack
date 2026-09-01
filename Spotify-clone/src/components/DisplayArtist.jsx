@@ -5,7 +5,7 @@ import { assets } from "../assets/assets";
 import axios from "axios";
 import { PlayerContext } from "../context/PlayerContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faDownload, faPlus, faHeart, faXmark, faMusic, faPlay, faPause, faShuffle, faShareNodes} from "@fortawesome/free-solid-svg-icons";
+import { faDownload, faPlus, faHeart, faXmark, faMusic, faPlay, faPause, faShuffle, faShareNodes } from "@fortawesome/free-solid-svg-icons";
 
 const DisplayArtist = () => {
     const { id } = useParams();
@@ -16,7 +16,7 @@ const DisplayArtist = () => {
     const [selectedSong, setSelectedSong] = useState(null);
     const [newPlaylistName, setNewPlaylistName] = useState("");
     const [isShuffleOn, setIsShuffleOn] = useState(false);
-    const {playWithId, artistsData, songsData, playStatus, track, pause} = useContext(PlayerContext);
+    const { playWithId, artistsData, songsData, playStatus, track, pause } = useContext(PlayerContext);
 
     useEffect(() => {
         const artist = artistsData.find((item) => item._id === id);
@@ -73,10 +73,7 @@ const DisplayArtist = () => {
             console.log("Song file not found");
             return;
         }
-        const downloadUrl = fileUrl.replace(
-            "/upload/",
-            `/upload/fl_attachment:${encodeURIComponent(song.name)}/`
-        );
+        const downloadUrl = fileUrl.replace("/upload/", `/upload/fl_attachment:${encodeURIComponent(song.name)}/`);
         const link = document.createElement("a");
         link.href = downloadUrl;
         link.download = `${song.name}.mp3`;
@@ -101,7 +98,6 @@ const DisplayArtist = () => {
         if (!newPlaylistName.trim()) {
             return;
         }
-
         try {
             const user = JSON.parse(localStorage.getItem("user"));
             if (!user) {
@@ -109,42 +105,24 @@ const DisplayArtist = () => {
                 return;
             }
             const userId = user.id || user._id;
-            const response = await axios.post(
-                "https://spotify-backend-lmvw.onrender.com/api/user/playlist/create",
-                {
-                    userId,
-                    name: newPlaylistName
-                }
-            );
-
+            const response = await axios.post("https://spotify-backend-lmvw.onrender.com/api/user/playlist/create", {
+                userId,
+                name: newPlaylistName
+            });
             if (response.data.success) {
-                const updatedUser = {
-                    ...user,
-                    library: response.data.library
-                };
-
+                const updatedUser = { ...user, library: response.data.library };
                 localStorage.setItem("user", JSON.stringify(updatedUser));
                 setPlaylists(response.data.library);
                 window.dispatchEvent(new CustomEvent("playlistUpdated"));
-                const newPlaylist = response.data.library[
-                    response.data.library.length - 1
-                ];
-
+                const newPlaylist = response.data.library[response.data.library.length - 1];
                 if (selectedSong) {
-                    const addResponse = await axios.post(
-                        "http://localhost:4000/api/user/playlist/add",
-                        {
-                            userId,
-                            playlistId: newPlaylist._id,
-                            songId: selectedSong._id
-                        }
-                    );
-
+                    const addResponse = await axios.post("https://spotify-backend-lmvw.onrender.com/api/user/playlist/add", {
+                        userId,
+                        playlistId: newPlaylist._id,
+                        songId: selectedSong._id
+                    });
                     if (addResponse.data.success) {
-                        const finalUser = {
-                            ...updatedUser,
-                            library: addResponse.data.library
-                        };
+                        const finalUser = { ...updatedUser, library: addResponse.data.library };
                         localStorage.setItem("user", JSON.stringify(finalUser));
                         setPlaylists(addResponse.data.library);
                         window.dispatchEvent(new CustomEvent("playlistUpdated"));
@@ -170,21 +148,13 @@ const DisplayArtist = () => {
                 return;
             }
             const userId = user.id || user._id;
-            const response = await axios.post(
-                "http://localhost:4000/api/user/playlist/add",
-                {
-                    userId,
-                    playlistId,
-                    songId: selectedSong._id
-                }
-            );
-
+            const response = await axios.post("https://spotify-backend-lmvw.onrender.com/api/user/playlist/add", {
+                userId,
+                playlistId,
+                songId: selectedSong._id
+            });
             if (response.data.success) {
-                const updatedUser = {
-                    ...user,
-                    library: response.data.library
-                };
-
+                const updatedUser = { ...user, library: response.data.library };
                 localStorage.setItem("user", JSON.stringify(updatedUser));
                 setPlaylists(response.data.library);
                 window.dispatchEvent(new CustomEvent("playlistUpdated"));
@@ -199,7 +169,6 @@ const DisplayArtist = () => {
     const handleFavorite = async (e, song) => {
         e.preventDefault();
         e.stopPropagation();
-
         try {
             const user = JSON.parse(localStorage.getItem("user"));
             if (!user) {
@@ -209,31 +178,17 @@ const DisplayArtist = () => {
             const userId = user.id || user._id;
             const songId = song._id.toString();
             const isFavorite = favoriteSongs.some((favoriteId) => favoriteId?.toString() === songId);
-            const endpoint = isFavorite
-                ? "http://localhost:4000/api/user/favorite/remove"
-                : "http://localhost:4000/api/user/favorite/add";
-            const response = await axios.post(endpoint, {
-                userId,
-                songId
-            });
-
+            const endpoint = isFavorite ? "https://spotify-backend-lmvw.onrender.com/api/user/favorite/remove" : "https://spotify-backend-lmvw.onrender.com/api/user/favorite/add";
+            const response = await axios.post(endpoint, { userId, songId });
             if (response.data.success) {
                 let updatedFavorites;
                 if (Array.isArray(response.data.favorites)) {
                     updatedFavorites = response.data.favorites;
                 } else {
-                    updatedFavorites = isFavorite
-                        ? favoriteSongs.filter((favoriteId) => favoriteId?.toString() !== songId)
-                        : [...favoriteSongs, songId];
+                    updatedFavorites = isFavorite ? favoriteSongs.filter((favoriteId) => favoriteId?.toString() !== songId) : [...favoriteSongs, songId];
                 }
                 setFavoriteSongs(updatedFavorites);
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify({
-                        ...user,
-                        favorites: updatedFavorites
-                    })
-                );
+                localStorage.setItem("user", JSON.stringify({ ...user, favorites: updatedFavorites }));
                 window.dispatchEvent(new CustomEvent("favoritesUpdated"));
             }
         } catch (error) {
@@ -247,13 +202,10 @@ const DisplayArtist = () => {
         return songArtistId?.toString() === artistData?._id?.toString();
     });
 
-    const totalDuration = artistSongs.reduce(
-        (total, song) => {
-            const [minutes, seconds] = song.duration.split(":").map(Number);
-            return total + (minutes * 60) + seconds;
-        },
-        0
-    );
+    const totalDuration = artistSongs.reduce((total, song) => {
+        const [minutes, seconds] = song.duration.split(":").map(Number);
+        return total + minutes * 60 + seconds;
+    }, 0);
 
     const totalMinutes = Math.floor(totalDuration / 60);
     const totalSeconds = totalDuration % 60;
@@ -272,12 +224,10 @@ const DisplayArtist = () => {
         if (!artistSongs.length) {
             return;
         }
-
         if (isShuffleOn) {
             setIsShuffleOn(false);
             return;
         }
-
         const shuffled = [...artistSongs];
         for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -307,66 +257,113 @@ const DisplayArtist = () => {
     return artistData ? (
         <div className="min-h-full relative" style={{ background: `linear-gradient(to bottom, ${artistData.bgColour}, #121212)` }}>
             <Navbar />
-            <div className="mt-10 ml-10 flex gap-8 flex-col md:flex-row md:items-start">
-                <img className="w-48 h-48 rounded object-cover" src={artistData.image} alt={artistData.name} />
-                <div className="flex flex-col h-48 justify-between flex-1">
+
+            <div className="mt-6 sm:mt-10 mx-4 sm:mx-6 md:ml-10 md:mr-6 flex gap-5 sm:gap-8 flex-col md:flex-row md:items-start">
+                <img className="w-40 h-40 sm:w-48 sm:h-48 rounded object-cover mx-auto md:mx-0" src={artistData.image} alt={artistData.name} />
+
+                <div className="flex flex-col min-h-48 md:h-48 justify-between flex-1 text-center md:text-left">
                     <div>
                         <p className="text-sm font-semibold">Artist</p>
-                        <h3 className="text-4xl font-bold mb-2 md:text-6xl">{artistData.name}</h3>
-                        <h4 className="m-2">{artistData.desc}</h4>
-                        <p className="mt-1">
+                        <h3 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-2 break-words">{artistData.name}</h3>
+                        <h4 className="m-2 text-sm sm:text-base">{artistData.desc}</h4>
+                        <p className="mt-3 text-xs sm:text-sm">
                             <img className="inline-block w-5" src={assets.spotify_logo} alt="" />
                             <b> Spotify</b>
-                            <b>{" "} • {artistSongs.length} Songs</b>
+                            <b> • {artistSongs.length} Songs</b>
                             {" • "}
                             {formattedTotalDuration}
                         </p>
                     </div>
-                    <div className="flex items-center mt-5 gap-4">
+
+                    <div className="flex items-center justify-center md:justify-start mt-5 gap-3 sm:gap-4">
                         <button type="button" onClick={isArtistPlaying ? pause : handlePlay} disabled={!artistSongs.length} title={isArtistPlaying ? "Pause" : "Play"} className="w-11 h-11 rounded-full bg-green-500 hover:bg-green-400 text-black flex items-center justify-center transition hover:scale-105 disabled:opacity-50">
-                            {isArtistPlaying ? (
-                                <FontAwesomeIcon icon={faPause} className="text-xl" />
-                            ) : (
-                                <FontAwesomeIcon icon={faPlay} className="text-xl ml-1" />
-                            )}
+                            {isArtistPlaying ? <FontAwesomeIcon icon={faPause} className="text-xl" /> : <FontAwesomeIcon icon={faPlay} className="text-xl ml-1" />}
                         </button>
+
                         <button type="button" onClick={handleShuffle} disabled={!artistSongs.length} title="Shuffle" className={`w-10 h-10 rounded-full border border-gray-500 hover:border-white flex items-center justify-center transition disabled:opacity-50 ${isShuffleOn ? "text-green-500" : "text-white"}`}>
                             <FontAwesomeIcon icon={faShuffle} className="text-lg" />
                         </button>
+
                         <button type="button" onClick={handleShare} title="Share" className="w-10 h-10 rounded-full border border-gray-500 hover:border-white text-white flex items-center justify-center transition">
                             <FontAwesomeIcon icon={faShareNodes} className="text-lg hover:text-green-500" />
                         </button>
                     </div>
                 </div>
             </div>
-            <div className="grid grid-cols-3 sm:grid-cols-5 mt-10 mb-4 pl-2 text-[#a7a7a7]">
-                <p><b className="mr-4">#</b>Title</p>
+
+            <div className="hidden sm:grid grid-cols-[42px_minmax(280px,1.8fr)_1fr_1fr_90px_130px] gap-4 mt-10 mb-4 px-3 sm:px-5 md:px-8 py-3 text-[#a7a7a7] text-sm">
+                <p>#</p>
+                <p>Title</p>
                 <p>Artist</p>
-                <p className="hidden sm:block">Date Added</p>
-                <img className="m-auto w-4" src={assets.clock_icon} alt="" />
+                <p>Date Added</p>
+                <p className="text-center">Time</p>
                 <p className="text-center">Actions</p>
             </div>
+
+            <div className="grid sm:hidden grid-cols-[1fr_60px_80px] gap-2 mt-8 mb-4 px-3 py-3 text-[#a7a7a7] text-xs">
+                <p>Title</p>
+                <p className="text-center">Time</p>
+                <p className="text-center">Actions</p>
+            </div>
+
             <hr />
+
             {artistSongs.map((item, index) => (
-                <div key={item._id} onClick={() => playWithId(item._id, artistSongs)} className="grid grid-cols-3 sm:grid-cols-5 gap-2 p-2 items-center text-[#a7a7a7] cursor-pointer hover:bg-[#ffffff2b]">
-                    <p className="text-white flex items-center min-w-0">
-                        <b className="mr-4 text-[#c5c1c1]">{index + 1}</b>
-                        <img className="inline w-10 h-10 mr-5 object-cover" src={item.image} alt="" />
-                        <span className="truncate">{item.name}</span>
-                    </p>
-                    <p className="text-[15px] truncate">{artistData.name}</p>
-                    <p className="text-[15px] hidden sm:block">5 Days Ago</p>
-                    <p className="text-[15px] text-center">{item.duration}</p>
-                    <div className="flex justify-center items-center gap-4" onClick={(e) => e.stopPropagation()}>
-                        <button title="Download" onClick={(e) => handleDownload(e, item)} className="text-[#a7a7a7] hover:text-green-600 hover:scale-150 transition-transform duration-200 cursor-pointer">
-                            <FontAwesomeIcon icon={faDownload} />
-                        </button>
-                        <button title="Add to Library" onClick={(e) => handleAddToLibrary(e, item)} className="text-[#a7a7a7] hover:text-green-600 hover:scale-150 transition-transform duration-200 cursor-pointer">
-                            <FontAwesomeIcon icon={faPlus} />
-                        </button>
-                        <button type="button" title={favoriteSongs.some((favoriteId) => favoriteId?.toString() === item._id.toString()) ? "Remove from Favorite" : "Add to Favorite"} onClick={(e) => handleFavorite(e, item)} className="text-[#a7a7a7] hover:text-green-600 hover:scale-150 transition-transform duration-200 cursor-pointer">
-                            <FontAwesomeIcon icon={faHeart} className={favoriteSongs.some((favoriteId) => favoriteId?.toString() === item._id.toString()) ? "text-green-500" : ""} />
-                        </button>
+                <div key={item._id} onClick={() => playWithId(item._id, artistSongs)} className="group cursor-pointer hover:bg-[#ffffff14] rounded-md transition">
+                    <div className="hidden sm:grid grid-cols-[42px_minmax(280px,1.8fr)_1fr_1fr_90px_130px] gap-4 px-3 sm:px-5 md:px-8 py-3 items-center text-[#a7a7a7]">
+                        <p className="group-hover:text-white">{index + 1}</p>
+
+                        <div className="flex items-center gap-4 min-w-0">
+                            <img src={item.image} alt="" className="w-12 h-12 rounded object-cover flex-shrink-0" />
+                            <div className="min-w-0">
+                                <p className="text-white truncate">{item.name}</p>
+                            </div>
+                        </div>
+
+                        <p className="text-[15px] truncate">{artistData.name}</p>
+                        <p className="text-[15px]">5 Days Ago</p>
+                        <p className="text-[15px] text-center">{item.duration}</p>
+
+                        <div className="flex items-center justify-center gap-4" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+                            <button title="Download" onClick={(e) => handleDownload(e, item)} className="text-[#a7a7a7] hover:text-green-600 hover:scale-125 transition-transform duration-200 cursor-pointer">
+                                <FontAwesomeIcon icon={faDownload} />
+                            </button>
+
+                            <button title="Add to Library" onClick={(e) => handleAddToLibrary(e, item)} className="text-[#a7a7a7] hover:text-green-600 hover:scale-125 transition-transform duration-200 cursor-pointer">
+                                <FontAwesomeIcon icon={faPlus} />
+                            </button>
+
+                            <button type="button" title={favoriteSongs.some((favoriteId) => favoriteId?.toString() === item._id.toString()) ? "Remove from Favorite" : "Add to Favorite"} onClick={(e) => handleFavorite(e, item)} className="text-[#a7a7a7] hover:text-green-600 hover:scale-125 transition-transform duration-200 cursor-pointer">
+                                <FontAwesomeIcon icon={faHeart} className={favoriteSongs.some((favoriteId) => favoriteId?.toString() === item._id.toString()) ? "text-green-500" : ""} />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="sm:hidden grid grid-cols-[1fr_60px_80px] gap-2 px-3 py-3 items-center">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <span className="text-[#a7a7a7] text-xs w-4 flex-shrink-0">{index + 1}</span>
+                            <img src={item.image} alt="" className="w-11 h-11 rounded object-cover flex-shrink-0" />
+                            <div className="min-w-0">
+                                <p className="text-white text-sm truncate">{item.name}</p>
+                                <p className="text-gray-400 text-xs truncate">{artistData.name}</p>
+                            </div>
+                        </div>
+
+                        <p className="text-[#a7a7a7] text-xs text-center whitespace-nowrap">{item.duration}</p>
+
+                        <div className="flex items-center justify-center gap-3" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+                            <button title="Download" onClick={(e) => handleDownload(e, item)} className="text-[#a7a7a7] hover:text-green-600 transition">
+                                <FontAwesomeIcon icon={faDownload} className="text-xs" />
+                            </button>
+
+                            <button title="Add to Library" onClick={(e) => handleAddToLibrary(e, item)} className="text-[#a7a7a7] hover:text-green-600 transition">
+                                <FontAwesomeIcon icon={faPlus} className="text-xs" />
+                            </button>
+
+                            <button type="button" title={favoriteSongs.some((favoriteId) => favoriteId?.toString() === item._id.toString()) ? "Remove from Favorite" : "Add to Favorite"} onClick={(e) => handleFavorite(e, item)} className="text-[#a7a7a7] hover:text-green-600 transition">
+                                <FontAwesomeIcon icon={faHeart} className={favoriteSongs.some((favoriteId) => favoriteId?.toString() === item._id.toString()) ? "text-green-500" : ""} />
+                            </button>
+                        </div>
                     </div>
                 </div>
             ))}
@@ -378,14 +375,15 @@ const DisplayArtist = () => {
             )}
 
             {playlistModal && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-                    <div className="bg-[#242424] w-[350px] rounded-xl p-5 text-white">
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+                    <div className="bg-[#242424] w-full max-w-[350px] rounded-xl p-5 text-white">
                         <div className="flex justify-between items-center mb-5">
                             <h2 className="text-xl font-bold">Add to Playlist</h2>
                             <button onClick={() => { setPlaylistModal(false); setSelectedSong(null); setNewPlaylistName(""); }} className="text-gray-400 hover:text-white">
                                 <FontAwesomeIcon icon={faXmark} />
                             </button>
                         </div>
+
                         {playlists.length > 0 && (
                             <div className="max-h-52 overflow-y-auto pr-1">
                                 {playlists.map((playlist) => {
@@ -399,25 +397,23 @@ const DisplayArtist = () => {
                                                     <FontAwesomeIcon icon={faMusic} className="text-gray-500 text-lg" />
                                                 )}
                                             </div>
+
                                             <div className="min-w-0 flex-1">
                                                 <p className="font-semibold truncate">{playlist.name}</p>
-                                                <p className="text-sm text-gray-400">
-                                                    {playlist.songs?.length || 0}{" "}
-                                                    {playlist.songs?.length === 1 ? "song" : "songs"}
-                                                </p>
+                                                <p className="text-sm text-gray-400">{playlist.songs?.length || 0} {playlist.songs?.length === 1 ? "song" : "songs"}</p>
                                             </div>
                                         </button>
                                     );
                                 })}
                             </div>
                         )}
+
                         <div className="border-t border-gray-600 mt-4 pt-4">
                             <p className="font-semibold mb-2">Create New Playlist</p>
+
                             <div className="flex gap-2">
-                                <input value={newPlaylistName} onChange={(e) => setNewPlaylistName(e.target.value)} placeholder="Playlist name" className="flex-1 bg-[#121212] rounded px-3 py-2 outline-none" />
-                                <button onClick={createNewPlaylist} className="bg-white text-black px-4 rounded-full font-medium hover:scale-105 transition">
-                                    Create
-                                </button>
+                                <input value={newPlaylistName} onChange={(e) => setNewPlaylistName(e.target.value)} placeholder="Playlist name" className="flex-1 min-w-0 bg-[#121212] rounded px-3 py-2 outline-none" />
+                                <button onClick={createNewPlaylist} className="bg-white text-black px-4 rounded-full font-medium hover:scale-105 transition">Create</button>
                             </div>
                         </div>
                     </div>

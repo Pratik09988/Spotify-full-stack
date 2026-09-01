@@ -110,7 +110,7 @@ const DisplayArtist = () => {
             }
             const userId = user.id || user._id;
             const response = await axios.post(
-                "http://localhost:4000/api/user/playlist/create",
+                "https://spotify-backend-lmvw.onrender.com/api/user/playlist/create",
                 {
                     userId,
                     name: newPlaylistName
